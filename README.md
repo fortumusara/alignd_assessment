@@ -325,8 +325,9 @@ alignd_assessment/
 From the project root, build and run the container:
 
 ```bash
-docker build -t dbt_env .
+docker build -t dbt_env -f docker/Dockerfile .
 docker run -it -v $(pwd):/app dbt_env bash
+
 ```
 ### Step 2: Initialize dbt Project
 Inside the container:
