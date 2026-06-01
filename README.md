@@ -4,10 +4,34 @@
 This project implements a **cloud-based ETL pipeline on AWS** that ingests raw data, processes it with resilient error handling, loads it into a **PostgreSQL star schema**, validates data quality, and transforms it into **analytics-ready datasets** using **dbt**.  
 The environment is containerized with **Docker + Poetry** for reproducibility and scalability.
 
+This pipeline is designed to scale horizontally and vertically to handle significantly larger workloads. Key strategies include:
+
+### Storage Partitioning
+-Partition S3 buckets by date, client, and product for efficient retrieval.
+-Apply S3 lifecycle policies to archive older data and reduce costs.
+
+### Compute Migration  
+-Transition from AWS Lambda to AWS Glue or Step Functions for large‑scale ETL orchestration.
+-Use Athena for serverless querying of raw data without moving it.
+
+### Database Scaling  
+-Migrate from PostgreSQL to Amazon Redshift or Snowflake for distributed analytics.
+-Implement columnar storage and compression to optimize query performance.
+
+### Orchestration  
+-Introduce Airflow or Dagster for complex scheduling and dependency management.
+-Integrate dbt into CI/CD pipelines with automated testing.
+
+### Monitoring & Observability  
+-Use CloudWatch dashboards for ETL error tracking.
+-Feed dbt test results into CI/CD pipelines for proactive quality checks.
+
 ---
 
 ## Architecture Diagram
 ![AWS ETL Pipeline](docs/architecture_diagram.png)
+
+
 
 **Caption:**  
 This architecture illustrates the end-to-end AWS ETL pipeline. Raw data uploaded to S3 triggers a Lambda function that converts and validates files. Cleaned data flows into PostgreSQL for structured storage and then feeds dbt models for automated transformation and testing. The Docker environment ensures reproducibility, while CloudWatch provides monitoring and error visibility.
@@ -35,10 +59,13 @@ alignd_assessment/
 ├── etl_lambda/                  # AWS Lambda ETL function
 │   ├── lambda_function.py        # Converts Parquet → CSV with error handling
 │   ├── requirements.txt          # Python dependencies for Lambda
-│   └── README.md                 # Notes on deployment and configuration
+
 │
-├── scripts/                      # Data cleaning scripts
+├── scripts/                      # AWS setup and Data cleaning scripts
 │   └── clean_health_products.py  # Cleans pipe-delimited health_products.txt
+│   ├── setup_task1.sh            # Bash script to setup s3 buckets and lambda
+│   ├── transformation.sql        # Transformation SQL Script
+│   ├── analytical_view.sql       # Analytical View SQL Script
 │
 ├── ddl/                          # Database schema definitions
 │   ├── star_schema.sql           # Star schema DDL (fact + dimension tables)
@@ -50,7 +77,6 @@ alignd_assessment/
 │   │   ├── fct_patient_claims_summary.sql
 │   │   └── schema.yml            # dbt tests (unique, not_null)
 │   ├── dbt_project.yml
-│   └── README.md
 │
 ├── docker/                       # Containerized environment
 │   ├── Dockerfile                # Docker build for dbt + PostgreSQL
@@ -71,7 +97,6 @@ alignd_assessment/
 
 
  ```
-
 
 ## Deployment Instructions – Task 1: Resilient Cloud ETL
 ### Step 1. Run the Bash Script (Infrastructure Setup)
