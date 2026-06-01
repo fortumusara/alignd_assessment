@@ -69,3 +69,72 @@ alignd_assessment/
 ├── .gitignore                    # Ignore rules (env files, data dumps, etc.)
 └── README.md                     # Root project documentation
 
+
+ ```
+
+
+## Deployment Instructions – Task 1: Resilient Cloud ETL
+## 1. Run the Bash Script (Infrastructure Setup)
+The bash script is stored in `scripts/task1_setup.sh`
+The bash script will:
+- Create the required S3 buckets (`[initials]-source-bucket-analytics` and `[initials]-processed-bucket-analytics`)
+- Package the Lambda code into a ZIP
+- Deploy the Lambda function with the correct role and handler
+
+Create the script using `nano`:
+
+```bash
+nano setup_task1.sh
+ ```
+
+Make it executable and run the script:
+```bash
+chmod +x setup_task1.sh
+./setup_task1.sh
+ ```
+
+Paste in your bash script, save (CTRL+O), and exit (CTRL+X).
+
+## 2. Upload the Python Code (Lambda Logic)
+The Lambda function logic is stored in `etl_lambda/lambda_function.py`.  
+This script handles:
+- Converting `health_lapses.parquet` → CSV
+- Uploading the CSV to the processed bucket
+- Moving failed files to `/error/` prefix and logging to CloudWatch
+
+After editing or updating the Python code, Create or edit the file using nano:
+
+```bash
+nano etl_lambda/lambda_function.py
+ ```
+repackage and update the Lambda:
+
+```bash
+cd etl_lambda
+zip -r ../etl_lambda.zip .
+cd ..
+aws lambda update-function-code \
+  --function-name <initials>-etl-function \
+  --zip-file fileb://etl_lambda.zip
+ ```
+
+## 3. Verify Deployment
+
+Once the infrastructure and Lambda function are set up:
+
+1. Upload `health_lapses.parquet` to your **source bucket**:
+
+2. Check outcomes:
+-  **Success** → A converted CSV file appears in `s3://<initials>-processed-bucket-analytics/`.
+-  **Failure** → The original parquet file is moved to `s3://<initials>-source-bucket-analytics/error/`.
+
+3. Review logs in **CloudWatch**:
+- Navigate to the Lambda’s log group in the AWS Console.
+- Confirm that success or error events are logged with details.
+
+4. (Optional) Test with additional files:
+- Upload `clients.csv` or `health_products.txt` to validate bucket permissions and Lambda triggers.
+
+
+
+
