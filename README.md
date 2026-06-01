@@ -133,7 +133,8 @@ After editing or updating the Python code, Create or edit the file using nano:
 ```bash
 nano etl_lambda/lambda_function.py
  ```
-repackage and update the Lambda:
+Paste in your Python script, save (CTRL+O), and exit (CTRL+X).
+Repackage and update the Lambda:
 
 ```bash
 cd etl_lambda
@@ -188,13 +189,25 @@ The script must be **idempotent** (safe to run multiple times) and handle **prog
 ```text
 alignd_assessment/
 │
-├── scripts/
-│   └── clean_health_products.py   # Task 2 cleaning script
-│
+├── scripts/                      # AWS setup and Data cleaning scripts
+│   └── clean_health_products.py  # Task2: Cleans pipe-delimited health_products.txt
 ├── data_files/
 │   ├── health_products.txt        # Raw input file
 │   └── health_products_clean.csv  # Cleaned output file (generated)
 
+Usage:
+run the scripts locally:
+
+```bash
+python scripts/clean_health_products.py
+```
+This will generate data_files/health_products_clean.csv with:
+
+Metadata removed
+Schema discovered dynamically
+Product IDs normalized to uppercase
+Whitespace stripped, duplicates removed, missing values filled
+Safe overwrite (idempotent)
 ```
 
 #  Task 3: Schema Design & Modeling (PostgreSQL)
@@ -247,7 +260,7 @@ Import clients.csv into dim_patients.
 
 Import health_products_clean.csv into dim_products.
 
-Import health_lapses.parquet into fct_patient_claims_summary (via Python/ETL script or DBeaver import).
+Import health_lapses.parquet into fct_patient_claims_summary (via Python/ETL script or DBeaver import). Parquet requires either COPY via foreign table (parquet_fdw) or ETL conversion to CSV before import, since PostgreSQL doesn’t natively ingest parquet.
 
 Populate dim_time by generating dates from your claims data.
 
@@ -267,7 +280,7 @@ Add composite indexes if queries frequently filter by multiple dimensions.
 
 Partition fact table if data volume grows significantly.
 
- Example Query
+ ### Example Query
 ```sql
 -- Claims by patient and product
 SELECT dp.client_name, pr.product_name, SUM(f.claim_amount) AS total_claims
@@ -302,17 +315,23 @@ alignd_assessment/
 ```
 
 ## Usage
-Run sql/transformations.sql in PostgreSQL (via DBeaver or psql).
+Run sql/transformations.sql in PostgreSQL (via DBeaver or psql). This will:
 
-This will:
+Deduplicate claims into fct_patient_claims_clean using ROW_NUMBER() to keep the latest/highest claim.
 
-Deduplicate claims into fct_patient_claims_clean.
+Impute missing incomes in dim_patients using median imputation (PERCENTILE_CONT(0.5)), chosen for robustness against outliers.
 
-Impute missing incomes in dim_patients.
+Create the unified analytical view vw_patient_claims
 
-Create the unified analytical view vw_patient_claims.
-
-Query vw_patient_claims for analytics.
+## Example Query
+```sql
+-- Average claim amount by product tier after cleaning
+SELECT pr.tier, AVG(f.claim_amount) AS avg_claim
+FROM vw_patient_claims f
+JOIN dim_products pr ON f.product_id = pr.product_id
+GROUP BY pr.tier
+ORDER BY avg_claim DESC;
+```
 
 #  Task 5: Automation & Environment (dbt)
 
