@@ -29,7 +29,10 @@ This pipeline is designed to scale horizontally and vertically to handle signifi
 ---
 
 ## Architecture Diagram
-![AWS ETL Pipeline](docs/architecture_diagram.png)
+
+
+<img width="1536" height="1024" alt="draw io" src="https://github.com/user-attachments/assets/6267ebbb-ae34-4ad1-bdb1-1226c9654776" />
+
 
 
 
