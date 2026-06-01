@@ -198,6 +198,7 @@ alignd_assessment/
 │   ├── health_products.txt        # Raw input file
 │   └── health_products_clean.csv  # Cleaned output file (generated)
 
+```
 Usage:
 run the scripts locally:
 
