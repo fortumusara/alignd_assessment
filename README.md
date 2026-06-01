@@ -75,7 +75,7 @@ alignd_assessment/
 
 ## Deployment Instructions – Task 1: Resilient Cloud ETL
 ## 1. Run the Bash Script (Infrastructure Setup)
-The bash script is stored in `scripts/task1_setup.sh`
+The bash script is stored in `scripts/setup_task1.sh`
 The bash script will:
 - Create the required S3 buckets (`[initials]-source-bucket-analytics` and `[initials]-processed-bucket-analytics`)
 - Package the Lambda code into a ZIP
@@ -86,6 +86,7 @@ Create the script using `nano`:
 ```bash
 nano setup_task1.sh
  ```
+Paste in your bash script, save (CTRL+O), and exit (CTRL+X).
 
 Make it executable and run the script:
 ```bash
@@ -93,7 +94,7 @@ chmod +x setup_task1.sh
 ./setup_task1.sh
  ```
 
-Paste in your bash script, save (CTRL+O), and exit (CTRL+X).
+
 
 ## 2. Upload the Python Code (Lambda Logic)
 The Lambda function logic is stored in `etl_lambda/lambda_function.py`.  
