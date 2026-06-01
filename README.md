@@ -1,12 +1,12 @@
-# 🧠 Data Engineering Assessment: Resilient Pipelines
+#  Data Engineering Assessment: Resilient Pipelines
 
-## 📘 Overview
+##  Overview
 This project implements a **cloud-based ETL pipeline on AWS** that ingests raw data, processes it with resilient error handling, loads it into a **PostgreSQL star schema**, validates data quality, and transforms it into **analytics-ready datasets** using **dbt**.  
 The environment is containerized with **Docker + Poetry** for reproducibility and scalability.
 
 ---
 
-## 🧩 Architecture Diagram
+## Architecture Diagram
 ![AWS ETL Pipeline](docs/architecture_diagram.png)
 
 **Caption:**  
@@ -27,7 +27,7 @@ This architecture illustrates the end-to-end AWS ETL pipeline. Raw data uploaded
 
 ---
 
-## 🧱 Repository Structure
+## Repository Structure
 ```text
 
 alignd_assessment/
@@ -74,7 +74,7 @@ alignd_assessment/
 
 
 ## Deployment Instructions – Task 1: Resilient Cloud ETL
-## 1. Run the Bash Script (Infrastructure Setup)
+### Step 1. Run the Bash Script (Infrastructure Setup)
 The bash script is stored in `scripts/setup_task1.sh`
 The bash script will:
 - Create the required S3 buckets (`[initials]-source-bucket-analytics` and `[initials]-processed-bucket-analytics`)
@@ -96,7 +96,7 @@ chmod +x setup_task1.sh
 
 
 
-## 2. Upload the Python Code (Lambda Logic)
+### Step 2. Upload the Python Code (Lambda Logic)
 The Lambda function logic is stored in `etl_lambda/lambda_function.py`.  
 This script handles:
 - Converting `health_lapses.parquet` → CSV
@@ -119,7 +119,7 @@ aws lambda update-function-code \
   --zip-file fileb://etl_lambda.zip
  ```
 
-## 3. Verify Deployment
+### Step 3. Verify Deployment
 
 Once the infrastructure and Lambda function are set up:
 
@@ -145,7 +145,7 @@ The script must be **idempotent** (safe to run multiple times) and handle **prog
 
 ---
 
-## ⚙️ Requirements
+### Requirements
 - Input file: `data_files/health_products.txt`
 - Metadata header: `--- CONFIDENTIAL: INTERNAL ALIGND EXPORT YYYY-MM-DD ---`
 - Delimiter: `|`
@@ -159,7 +159,7 @@ The script must be **idempotent** (safe to run multiple times) and handle **prog
 
 ---
 
-## 🧱 Repository Placement
+###  Repository Placement
 ```text
 alignd_assessment/
 │
@@ -204,12 +204,12 @@ alignd_assessment/
 ```
 
  ## Usage
-Step 1: Connect to PostgreSQL
+### Step 1: Connect to PostgreSQL
 Open DBeaver and connect to your PostgreSQL instance.
 
 Alternatively, use psql CLI or a Python script with psycopg2.
 
-Step 2: Create Schema
+### Step 2: Create Schema
 Run the DDL scripts:
 
 ```bash
@@ -217,7 +217,7 @@ psql -U <username> -d <database> -f ddl/star_schema.sql
 psql -U <username> -d <database> -f ddl/indexes.sql
 ```
 
-Step 3: Load Data
+### Step 3: Load Data
 Import clients.csv into dim_patients.
 
 Import health_products_clean.csv into dim_products.
@@ -226,7 +226,7 @@ Import health_lapses.parquet into fct_patient_claims_summary (via Python/ETL scr
 
 Populate dim_time by generating dates from your claims data.
 
-Step 4: Verify Joins
+### Step 4: Verify Joins
 Run a test query:
 
 ```sql
@@ -235,7 +235,7 @@ FROM fct_patient_claims_summary f
 JOIN dim_products p ON f.product_id = p.product_id
 GROUP BY p.tier;
 ```
-Step 5: Optimize
+### Step 5: Optimize
 Check query plans with EXPLAIN ANALYZE.
 
 Add composite indexes if queries frequently filter by multiple dimensions.
@@ -276,7 +276,7 @@ alignd_assessment/
 │   └── analytical_view.sql   # Unified dataset view
 ```
 
-Usage
+## Usage
 Run sql/transformations.sql in PostgreSQL (via DBeaver or psql).
 
 This will:
@@ -289,7 +289,7 @@ Create the unified analytical view vw_patient_claims.
 
 Query vw_patient_claims for analytics.
 
-# 🧠 Task 5: Automation & Environment (dbt)
+#  Task 5: Automation & Environment (dbt)
 
 ##  Goal
 Orchestrate the pipeline using the provided **Docker/Poetry environment**.  
@@ -310,16 +310,19 @@ Implement dbt models and tests to ensure data quality and reproducibility.
 ```text
 alignd_assessment/
 │
-├── dbt_project/
-│   ├── models/
-│   │   ├── dim_patients.sql
-│   │   ├── fct_patient_claims_summary.sql
-│   │   └── schema.yml
-│   ├── dbt_project.yml
-│   └── README.md
-
+├── dbt_project/                        # dbt project folder (models + configs)
+│   ├── models/                         # SQL models for dimensions and facts
+│   │   ├── dim_patients.sql            # Patient dimension model (from clients.csv)
+│   │   ├── fct_patient_claims_summary.sql # Claims fact model (from health_lapses.parquet)
+│   │   └── schema.yml                  # dbt tests (unique, not_null) for data quality
+│   ├── dbt_project.yml                 # Core dbt project configuration (name, profile, seeds, sources)
+├── docker/                           # Containerized environment for dbt + PostgreSQL
+│   ├── Dockerfile                    # Build instructions for the dbt environment (Python, Poetry, dbt, psycopg2)
+│   ├── poetry.lock                   # Auto-generated lockfile (exact dependency versions for reproducibility)
+│   └── pyproject.toml                # Poetry project definition (declares dbt-core, dbt-postgres, psycopg2, etc.)
+     
 ```
-## 🚀 Usage
+##  Usage
 
 ### Step 1: Build Docker/Poetry Environment
 From the project root, build and run the container:
@@ -349,11 +352,10 @@ Validate schema constraints:
 dbt test
 ```
 ### Step 5: Verify Outputs
-dim_patients → dimension table populated from clients.csv.
 
-fct_patient_claims_summary → fact table populated from health_lapses.parquet.
-
-Tests ensure unique keys and not_null constraints on critical columns.
+- `dim_patients` → dimension table populated from clients.csv  
+- `fct_patient_claims_summary` → fact table populated from health_lapses.parquet  
+- Tests ensure unique keys and not_null constraints on critical columns  
 
 ### Step 6: Query Results
 Use dbt’s ref() in downstream models or query directly:
