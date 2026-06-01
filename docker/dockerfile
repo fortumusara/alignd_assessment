@@ -1,0 +1,28 @@
+# Dockerfile
+
+FROM python:3.10-slim
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    build-essential \
+    libpq-dev \
+    git \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install Poetry
+RUN pip install poetry
+
+# Set workdir
+WORKDIR /app
+
+# Copy Poetry files
+COPY docker/pyproject.toml docker/poetry.lock* ./
+
+# Install dependencies
+RUN poetry install
+
+# Copy project files
+COPY . .
+
+# Default command
+CMD ["bash"]

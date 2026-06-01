@@ -1,0 +1,41 @@
+# dbt_project.yml
+
+name: 'alignd_assessment'
+version: '1.0.0'
+config-version: 2
+
+profile: 'alignd_profile'
+
+# Define where dbt should look for models, seeds, snapshots, etc.
+source-paths: ["models"]
+analysis-paths: ["analysis"]
+test-paths: ["tests"]
+seed-paths: ["seeds"]
+macro-paths: ["macros"]
+
+# Define target schema for models
+models:
+  alignd_assessment:
+    dim_patients:
+      +materialized: table
+    fct_patient_claims_summary:
+      +materialized: table
+
+# Optional: specify seeds for CSV files
+seeds:
+  alignd_assessment:
+    clients:
+      +header: true
+      +delimiter: ","
+    health_products_clean:
+      +header: true
+      +delimiter: ","
+
+# Define sources (raw data tables)
+sources:
+  - name: raw
+    schema: raw_data
+    tables:
+      - name: clients
+      - name: health_lapses
+      - name: health_products_clean

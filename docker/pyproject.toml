@@ -1,0 +1,17 @@
+[tool.poetry]
+name = "alignd-assessment"
+version = "0.1.0"
+description = "Containerized dbt + PostgreSQL environment"
+authors = ["Your Name <you@example.com>"]
+
+[tool.poetry.dependencies]
+python = "^3.10"
+dbt-core = "^1.7.0"
+dbt-postgres = "^1.7.0"
+psycopg2-binary = "^2.9.9"
+pandas = "^2.2.0"
+pyarrow = "^15.0.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

@@ -1,0 +1,30 @@
+version: 2
+
+models:
+  - name: dim_patients
+    description: "Dimension table for patient attributes"
+    columns:
+      - name: patient_id
+        tests:
+          - unique
+          - not_null
+      - name: client_name
+        tests:
+          - not_null
+
+  - name: fct_patient_claims_summary
+    description: "Fact table summarizing patient claims"
+    columns:
+      - name: claim_id
+        tests:
+          - unique
+          - not_null
+      - name: patient_id
+        tests:
+          - not_null
+      - name: product_id
+        tests:
+          - not_null
+      - name: date_id
+        tests:
+          - not_null
